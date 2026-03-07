@@ -29,8 +29,9 @@ function getById(req: Request, res: Response, next: NextFunction): void {
 }
 
 function create(req: Request, res: Response, next: NextFunction): void {
+    console.log('create request body:', req.body);
     userService.create(req.body)
-        .then(() => res.json({ message: 'User Created'}))
+        .then(() => res.send('user created'))
         .catch(next);
 }
 
@@ -55,6 +56,7 @@ function createSchema(req: Request, res: Response, next: NextFunction): void {
         email: Joi.string().email().required(),
         password: Joi.string().min(6).required(),
         confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
+            phoneNumber: Joi.string().min(10).required(),
     });
     validateRequest(req, next, schema);
 }
@@ -68,6 +70,7 @@ function updateSchema(req: Request, res: Response, next: NextFunction): void {
         email: Joi.string().email().empty(''),
         password: Joi.string().min(6).empty(''),
         confirmPassword: Joi.string().valid(Joi.ref('password')).empty(''),
+        phoneNumber: Joi.string().min(10).empty(''),
     }).with('password', 'confirmPassword');
     validateRequest(req, next, schema);
 }

@@ -26,6 +26,10 @@ async function create(params:UserCreationAttributes & { password: string }): Pro
         throw new Error(`Email "${params.email}" is already registered`)
     }
 
+    if (!params.phoneNumber || params.phoneNumber.length < 10) {
+        throw new Error('phoneNumber is required and must be at least 10 characters');
+    }
+
     const passwordHash = await bcrypt.hash(params.password, 10);
 
     await db.User.create({

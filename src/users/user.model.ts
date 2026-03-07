@@ -6,6 +6,7 @@ export interface UserAttributes {
     id: number;
     email: string;
     passwordHash: string;
+    phoneNumber: string;
     title: string;
     firstName: string;
     lastName: string;
@@ -24,6 +25,7 @@ export class User
     public id!: number;
     public email!: string;
     public passwordHash!: string;
+    public phoneNumber!: string;
     public title!: string;
     public firstName!: string;
     public lastName!: string;
@@ -60,6 +62,11 @@ export default function (sequelize: Sequelize): typeof User{
             lastName: {
                 type: DataTypes.STRING,
                 allowNull: false,
+            },
+            phoneNumber: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: '',
             },
             role: {
                 type: DataTypes.STRING,
