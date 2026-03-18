@@ -4,6 +4,10 @@ import cors from 'cors';
 import { errorHandler } from './_middleware/errorHandler';
 import { initialize } from './_helpers/db';
 import usersController from './users/users.controller';
+import departmentController from './department/department.controller';
+import employeeController from './employee/employee.controller';
+import requestController from './request/request.controller';
+import transferController from './transfer/transfer.controller';
 
 const app: Application = express();
 
@@ -11,7 +15,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// Public routes
 app.use('/users', usersController);
+app.use('/departments', departmentController);
+app.use('/employees', employeeController);
+app.use('/requests', requestController);
+app.use('/transfers', transferController);
 
 app.use(errorHandler);
 
@@ -21,7 +30,7 @@ initialize()
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Server is running on http://localhost:${PORT}`);
-            console.log(`Test with: POST /user with { email, password, ...}`);
+            console.log(`Test with: POST /users/register or /users/login`);
         });
     })
     .catch((err) => {

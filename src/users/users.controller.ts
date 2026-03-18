@@ -8,6 +8,9 @@ import { userService } from "./user.service";
 
 const router = Router();
 
+router.post('/register', registerSchema, register);
+router.post('/login', loginSchema, login);
+router.get('/profile', getProfile);
 router.get('/', getAll);
 router.get('/:id', getById);
 router.post('/', createSchema, create);
@@ -15,6 +18,23 @@ router.put('/:id', updateSchema, update);
 router.delete('/:id', _delete);
 
 export default router;
+
+function register(req: Request, res: Response, next: NextFunction): void {
+    userService.register(req.body)
+        .then(({ user, token }) => res.json({ user, token }))
+        .catch(next);
+}
+
+function login(req: Request, res: Response, next: NextFunction): void {
+    userService.authenticate(req.body.email, req.body.password)
+        .then(({ user, token }) => res.json({ user, token }))
+        .catch(next);
+}
+
+function getProfile(req: Request, res: Response, next: NextFunction): void {
+    const user = (req as any).user;
+    res.json(user);
+}
 
 function getAll(req: Request, res: Response, next: NextFunction): void {
     userService.getAll()
@@ -37,14 +57,36 @@ function create(req: Request, res: Response, next: NextFunction): void {
 
 function update(req: Request, res: Response, next: NextFunction): void {
     userService.update(Number(req.params.id), req.body)
-        .then(() => res.json({ message: 'User Updated'}))
+        .then(() => res.json({ message: 'User Updated' }))
         .catch(next);
 }
 
 function _delete(req: Request, res: Response, next: NextFunction): void {
     userService.delete(Number(req.params.id))
-        .then(() => res.json({ message: 'User Deleted'}))
+        .then(() => res.json({ message: 'User Deleted' }))
         .catch(next);
+}
+
+function registerSchema(req: Request, res: Response, next: NextFunction): void {
+    const schema = Joi.object({
+        title: Joi.string().required(),
+        firstName: Joi.string().required(),
+        lastName: Joi.string().required(),
+        role: Joi.string().valid(Role.Admin, Role.User).default(Role.User),
+        email: Joi.string().email().required(),
+        password: Joi.string().min(6).required(),
+        confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
+        phoneNumber: Joi.string().min(10).required(),
+    });
+    validateRequest(req, next, schema);
+}
+
+function loginSchema(req: Request, res: Response, next: NextFunction): void {
+    const schema = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+    });
+    validateRequest(req, next, schema);
 }
 
 function createSchema(req: Request, res: Response, next: NextFunction): void {
@@ -56,7 +98,7 @@ function createSchema(req: Request, res: Response, next: NextFunction): void {
         email: Joi.string().email().required(),
         password: Joi.string().min(6).required(),
         confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
-            phoneNumber: Joi.string().min(10).required(),
+        phoneNumber: Joi.string().min(10).required(),
     });
     validateRequest(req, next, schema);
 }
@@ -64,7 +106,7 @@ function createSchema(req: Request, res: Response, next: NextFunction): void {
 function updateSchema(req: Request, res: Response, next: NextFunction): void {
     const schema = Joi.object({
         title: Joi.string().empty(''),
-        fisrtName: Joi.string().empty(''),
+        firstName: Joi.string().empty(''),
         lastName: Joi.string().empty(''),
         role: Joi.string().valid(Role.Admin, Role.User).empty(''),
         email: Joi.string().email().empty(''),
